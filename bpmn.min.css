@@ -1,0 +1,40 @@
+/**
+ * bpmn-js v8.8.3
+ *
+ * Placeholder for the actual bpmn-js library CSS
+ * In a real implementation, this would be the minified bpmn-js CSS
+ * For this demo, we're using a simplified version that provides basic styling
+ */
+
+.bpmn-element {
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+  transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1);
+  user-select: none;
+}
+
+.bpmn-element:hover {
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.bpmn-element.startEvent, .bpmn-element.endEvent {
+  line-height: 1;
+  font-size: 0.8em;
+}
+
+.bjs-overlay {
+  z-index: 10;
+  border-radius: 3px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.sequence-flow {
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+} 

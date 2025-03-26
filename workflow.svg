@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1500" viewBox="0 0 1000 1500">
+  <!-- Yellow: Employee Intent (Start Event) -->
+  <circle cx="200" cy="100" r="50" fill="#f9d67a" stroke="#aa8833" stroke-width="5" />
+  <text x="200" y="180" text-anchor="middle" font-family="Arial">Employee Intent</text>
+  
+  <!-- Blue: VA Interaction -->
+  <rect x="150" y="250" width="100" height="80" fill="#afd4f4" stroke="#5588aa" stroke-width="2" rx="5" ry="5" />
+  <text x="200" y="290" text-anchor="middle" font-family="Arial">VA Interaction</text>
+  
+  <!-- Green: User Choice (Gateway) -->
+  <polygon points="200,400 250,450 200,500 150,450" fill="#aadd77" stroke="#227700" stroke-width="2" />
+  <text x="200" y="530" text-anchor="middle" font-family="Arial">User Choice</text>
+  
+  <!-- Connections -->
+  <line x1="200" y1="150" x2="200" y2="250" stroke="#000" stroke-width="2" />
+  <line x1="200" y1="330" x2="200" y2="400" stroke="#000" stroke-width="2" />
+  
+  <!-- Blue: VA Interaction (Yes path) -->
+  <rect x="50" y="600" width="100" height="80" fill="#afd4f4" stroke="#5588aa" stroke-width="2" rx="5" ry="5" />
+  <text x="100" y="640" text-anchor="middle" font-family="Arial">VA Interaction Yes</text>
+  
+  <!-- Pink: Re-engage (No path) -->
+  <rect x="250" y="600" width="100" height="80" fill="#ffaadd" stroke="#cc4488" stroke-width="2" rx="5" ry="5" />
+  <text x="300" y="640" text-anchor="middle" font-family="Arial">Re-engage No</text>
+  
+  <!-- Connections from gateway -->
+  <line x1="150" y1="450" x2="100" y2="600" stroke="#000" stroke-width="2" />
+  <text x="110" y="520" text-anchor="middle" font-family="Arial" font-size="12">Yes</text>
+  
+  <line x1="250" y1="450" x2="300" y2="600" stroke="#000" stroke-width="2" />
+  <text x="290" y="520" text-anchor="middle" font-family="Arial" font-size="12">No</text>
+  
+  <!-- End event for re-engage path -->
+  <circle cx="300" cy="750" r="30" fill="#white" stroke="#888888" stroke-width="2" />
+  <text x="300" y="800" text-anchor="middle" font-family="Arial">End Process</text>
+  <line x1="300" y1="680" x2="300" y2="720" stroke="#000" stroke-width="2" />
+  
+  <!-- Second gateway -->
+  <polygon points="100,750 150,800 100,850 50,800" fill="#aadd77" stroke="#227700" stroke-width="2" />
+  <text x="100" y="880" text-anchor="middle" font-family="Arial">User Choice</text>
+  <line x1="100" y1="680" x2="100" y2="750" stroke="#000" stroke-width="2" />
+  
+  <!-- Purple: Integration -->
+  <rect x="250" y="900" width="100" height="80" fill="#ddaaff" stroke="#8844cc" stroke-width="2" rx="5" ry="5" />
+  <text x="300" y="940" text-anchor="middle" font-family="Arial">Integration</text>
+  <line x1="150" y1="800" x2="250" y2="900" stroke="#000" stroke-width="2" />
+  
+  <!-- White: Interrupt -->
+  <rect x="50" y="950" width="100" height="80" fill="#ffffff" stroke="#888888" stroke-width="2" rx="5" ry="5" />
+  <text x="100" y="990" text-anchor="middle" font-family="Arial">Interrupt</text>
+  <line x1="50" y1="800" x2="50" y2="950" stroke="#000" stroke-width="2" />
+  
+  <!-- Legend -->
+  <rect x="600" y="50" width="300" height="280" fill="white" stroke="#ccc" stroke-width="1" />
+  <text x="750" y="80" text-anchor="middle" font-family="Arial" font-weight="bold">Key</text>
+  
+  <!-- Legend items -->
+  <rect x="620" y="100" width="25" height="25" fill="#f9d67a" stroke="#aa8833" stroke-width="1" />
+  <text x="655" y="117" font-family="Arial" font-size="12" dx="5">Yellow: Employee Intent</text>
+  
+  <rect x="620" y="135" width="25" height="25" fill="#afd4f4" stroke="#5588aa" stroke-width="1" />
+  <text x="655" y="152" font-family="Arial" font-size="12" dx="5">Blue: VA Interactions</text>
+  
+  <rect x="620" y="170" width="25" height="25" fill="#aadd77" stroke="#227700" stroke-width="1" />
+  <text x="655" y="187" font-family="Arial" font-size="12" dx="5">Green: User Choices</text>
+  
+  <rect x="620" y="205" width="25" height="25" fill="#ffaadd" stroke="#cc4488" stroke-width="1" />
+  <text x="655" y="222" font-family="Arial" font-size="12" dx="5">Pink: Re-engagement</text>
+  
+  <rect x="620" y="240" width="25" height="25" fill="#ddaaff" stroke="#8844cc" stroke-width="1" />
+  <text x="655" y="257" font-family="Arial" font-size="12" dx="5">Purple: Integrations</text>
+  
+  <rect x="620" y="275" width="25" height="25" fill="#ffffff" stroke="#888888" stroke-width="1" />
+  <text x="655" y="292" font-family="Arial" font-size="12" dx="5">White: Interrupts</text>
+</svg> 

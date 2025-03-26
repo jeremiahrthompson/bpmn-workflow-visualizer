@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             id="Definitions_Retirement"
+             targetNamespace="http://bpmnsample"
+             exporter="bpmn-js" exporterVersion="9.0.3">
+    <process id="Retirement_Setup_Process" name="Retirement Setup Workflow" isExecutable="false">
+        <!-- Yellow: Start Event -->
+        <startEvent id="StartEvent_Intent" name="Capture Intent: Employee states 'I want to retire'">
+            <outgoing>Flow_To_VA_Interaction</outgoing>
+        </startEvent>
+
+        <!-- Blue: VA Interaction -->
+        <serviceTask id="Task_VA_Interaction_1" name="VA Interaction: VA asks: 'Are you preparing to retire?'">
+            <incoming>Flow_To_VA_Interaction</incoming>
+            <outgoing>Flow_To_Receive_Answer</outgoing>
+        </serviceTask>
+
+        <intermediateCatchEvent id="Event_Receive_Answer" name="Receive user answer">
+            <incoming>Flow_To_Receive_Answer</incoming>
+            <outgoing>Flow_To_Gateway</outgoing>
+            <messageEventDefinition id="MessageEventDefinition_1" messageRef="Message_1" />
+        </intermediateCatchEvent>
+
+        <!-- Green: User Choice -->
+        <exclusiveGateway id="Gateway_User_Choice" name="User Choice: Preparing to retire or not">
+            <incoming>Flow_To_Gateway</incoming>
+            <outgoing>Flow_Proceed</outgoing>
+            <outgoing>Flow_Reengage_Initial</outgoing>
+        </exclusiveGateway>
+
+        <!-- Pink: Initial Re-engagement Path -->
+        <serviceTask id="Task_Reengage_Initial" name="Re-engage: Would you like to proceed with setting up your retirement account?">
+            <incoming>Flow_Reengage_Initial</incoming>
+            <outgoing>Flow_To_End_Cancel</outgoing>
+        </serviceTask>
+
+        <!-- Blue: VA Interaction (Initial Resources) -->
+        <serviceTask id="Task_VA_Interaction_2" name="VA Interaction: Provide retirement resources">
+            <incoming>Flow_Proceed</incoming>
+            <outgoing>Flow_To_Integration</outgoing>
+        </serviceTask>
+
+        <!-- Purple: Integration -->
+        <callActivity id="Task_Integration" name="Integration: Get user's country" calledElement="Get_User_Country">
+            <incoming>Flow_To_Integration</incoming>
+            <outgoing>Flow_To_Country_Check</outgoing>
+        </callActivity>
+
+        <!-- Green: Check User's Country -->
+        <exclusiveGateway id="Gateway_Country_Check" name="User Choice: Is user in the U.S.?">
+            <incoming>Flow_To_Country_Check</incoming>
+            <outgoing>Flow_US_User</outgoing>
+            <outgoing>Flow_Non_US_User</outgoing>
+        </exclusiveGateway>
+
+        <!-- White: Non-U.S. User Path -->
+        <task id="Task_Interrupt_Non_US" name="Interrupt: Direct to Retirement main website">
+            <incoming>Flow_Non_US_User</incoming>
+            <outgoing>Flow_To_Reengage_Final_NonUS</outgoing>
+        </task>
+
+        <!-- Blue: U.S. User Path (Provide Links) -->
+        <serviceTask id="Task_VA_Interaction_3" name="VA Interaction: Provide retirement links for U.S. users">
+            <incoming>Flow_US_User</incoming>
+            <outgoing>Flow_To_Reengage_Final_US</outgoing>
+        </serviceTask>
+
+        <!-- Pink: Final Re-engagement -->
+        <serviceTask id="Task_Reengage_Final" name="Re-engage: Would you like to have more questions about your Event Services?">
+            <incoming>Flow_To_Reengage_Final_NonUS</incoming>
+            <incoming>Flow_To_Reengage_Final_US</incoming>
+            <outgoing>Flow_To_End_Complete</outgoing>
+        </serviceTask>
+
+        <!-- End Events -->
+        <endEvent id="EndEvent_Cancel" name="End: Process Canceled">
+            <incoming>Flow_To_End_Cancel</incoming>
+        </endEvent>
+        <endEvent id="EndEvent_Complete" name="End: Process Completed">
+            <incoming>Flow_To_End_Complete</incoming>
+        </endEvent>
+
+        <!-- Sequence Flows -->
+        <sequenceFlow id="Flow_To_VA_Interaction" sourceRef="StartEvent_Intent" targetRef="Task_VA_Interaction_1" />
+        <sequenceFlow id="Flow_To_Receive_Answer" sourceRef="Task_VA_Interaction_1" targetRef="Event_Receive_Answer" />
+        <sequenceFlow id="Flow_To_Gateway" sourceRef="Event_Receive_Answer" targetRef="Gateway_User_Choice" />
+        <sequenceFlow id="Flow_Proceed" sourceRef="Gateway_User_Choice" targetRef="Task_VA_Interaction_2">
+            <conditionExpression xsi:type="tFormalExpression">user_answer == 'yes'</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="Flow_Reengage_Initial" sourceRef="Gateway_User_Choice" targetRef="Task_Reengage_Initial">
+            <conditionExpression xsi:type="tFormalExpression">user_answer == 'no'</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="Flow_To_End_Cancel" sourceRef="Task_Reengage_Initial" targetRef="EndEvent_Cancel" />
+        <sequenceFlow id="Flow_To_Integration" sourceRef="Task_VA_Interaction_2" targetRef="Task_Integration" />
+        <sequenceFlow id="Flow_To_Country_Check" sourceRef="Task_Integration" targetRef="Gateway_Country_Check" />
+        <sequenceFlow id="Flow_US_User" sourceRef="Gateway_Country_Check" targetRef="Task_VA_Interaction_3">
+            <conditionExpression xsi:type="tFormalExpression">user_country == 'US'</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="Flow_Non_US_User" sourceRef="Gateway_Country_Check" targetRef="Task_Interrupt_Non_US">
+            <conditionExpression xsi:type="tFormalExpression">user_country != 'US'</conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="Flow_To_Reengage_Final_US" sourceRef="Task_VA_Interaction_3" targetRef="Task_Reengage_Final" />
+        <sequenceFlow id="Flow_To_Reengage_Final_NonUS" sourceRef="Task_Interrupt_Non_US" targetRef="Task_Reengage_Final" />
+        <sequenceFlow id="Flow_To_End_Complete" sourceRef="Task_Reengage_Final" targetRef="EndEvent_Complete" />
+    </process>
+
+    <!-- Reusable Sub-Process -->
+    <process id="Get_User_Country" name="Get User Country" isExecutable="false">
+        <task id="Task_Get_Country" name="Retrieve user's country from HR system">
+            <outgoing>Flow_To_Sub_End</outgoing>
+        </task>
+        <endEvent id="Sub_EndEvent" name="Sub-Process End">
+            <incoming>Flow_To_Sub_End</incoming>
+        </endEvent>
+        <sequenceFlow id="Flow_To_Sub_End" sourceRef="Task_Get_Country" targetRef="Sub_EndEvent" />
+    </process>
+
+    <!-- Message Definitions -->
+    <message id="Message_1" name="UserAnswer" />
+
+    <!-- BPMN Diagram Information -->
+    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Retirement_Setup_Process">
+            <!-- Start Event -->
+            <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1" bpmnElement="StartEvent_Intent">
+                <dc:Bounds x="172" y="82" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="120" y="125" width="140" height="40" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <!-- Main diagram elements with layout focused on vertical arrangement -->
+            <!-- Each element is positioned further down than the previous one -->
+            
+            <!-- VA Interaction 1 -->
+            <bpmndi:BPMNShape id="Activity_1f4oire" bpmnElement="Task_VA_Interaction_1">
+                <dc:Bounds x="140" y="200" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Receive Answer -->
+            <bpmndi:BPMNShape id="Event_1wfvp3p" bpmnElement="Event_Receive_Answer">
+                <dc:Bounds x="172" y="322" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="155" y="365" width="70" height="14" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <!-- Gateway User Choice -->
+            <bpmndi:BPMNShape id="Gateway_0g7u5t7" bpmnElement="Gateway_User_Choice" isMarkerVisible="true">
+                <dc:Bounds x="165" y="415" width="50" height="50" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="228" y="433" width="85" height="27" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <!-- Task Reengage Initial -->
+            <bpmndi:BPMNShape id="Activity_0fbd2ow" bpmnElement="Task_Reengage_Initial">
+                <dc:Bounds x="300" y="500" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Task VA Interaction 2 -->
+            <bpmndi:BPMNShape id="Activity_0gq6pbo" bpmnElement="Task_VA_Interaction_2">
+                <dc:Bounds x="140" y="500" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Task Integration -->
+            <bpmndi:BPMNShape id="Activity_1n7f9wt" bpmnElement="Task_Integration">
+                <dc:Bounds x="140" y="600" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Gateway Country Check -->
+            <bpmndi:BPMNShape id="Gateway_0v9s07j" bpmnElement="Gateway_Country_Check" isMarkerVisible="true">
+                <dc:Bounds x="165" y="705" width="50" height="50" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="228" y="723" width="85" height="27" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <!-- Task Interrupt Non US -->
+            <bpmndi:BPMNShape id="Activity_0kt9wy2" bpmnElement="Task_Interrupt_Non_US">
+                <dc:Bounds x="300" y="800" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Task VA Interaction 3 -->
+            <bpmndi:BPMNShape id="Activity_0eaxim3" bpmnElement="Task_VA_Interaction_3">
+                <dc:Bounds x="140" y="800" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- Task Reengage Final -->
+            <bpmndi:BPMNShape id="Activity_15y86jj" bpmnElement="Task_Reengage_Final">
+                <dc:Bounds x="220" y="920" width="100" height="80" />
+                <bpmndi:BPMNLabel />
+            </bpmndi:BPMNShape>
+            
+            <!-- End Events -->
+            <bpmndi:BPMNShape id="Event_0tdzyto" bpmnElement="EndEvent_Cancel">
+                <dc:Bounds x="332" y="602" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="313" y="645" width="74" height="14" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <bpmndi:BPMNShape id="Event_0kbkj19" bpmnElement="EndEvent_Complete">
+                <dc:Bounds x="252" y="1032" width="36" height="36" />
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="233" y="1075" width="74" height="14" />
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            
+            <!-- Sequence Flows -->
+            <bpmndi:BPMNEdge id="Flow_0m1dyf3" bpmnElement="Flow_To_VA_Interaction">
+                <di:waypoint x="190" y="118" />
+                <di:waypoint x="190" y="200" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_1nvs9f3" bpmnElement="Flow_To_Receive_Answer">
+                <di:waypoint x="190" y="280" />
+                <di:waypoint x="190" y="322" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_1h0wbpc" bpmnElement="Flow_To_Gateway">
+                <di:waypoint x="190" y="358" />
+                <di:waypoint x="190" y="415" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_0onk62v" bpmnElement="Flow_Proceed">
+                <di:waypoint x="190" y="465" />
+                <di:waypoint x="190" y="500" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_03fj1ar" bpmnElement="Flow_Reengage_Initial">
+                <di:waypoint x="215" y="440" />
+                <di:waypoint x="350" y="440" />
+                <di:waypoint x="350" y="500" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_13iczos" bpmnElement="Flow_To_End_Cancel">
+                <di:waypoint x="350" y="580" />
+                <di:waypoint x="350" y="602" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_17mua0h" bpmnElement="Flow_To_Integration">
+                <di:waypoint x="190" y="580" />
+                <di:waypoint x="190" y="600" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_0v4jkeo" bpmnElement="Flow_To_Country_Check">
+                <di:waypoint x="190" y="680" />
+                <di:waypoint x="190" y="705" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_1s3c84j" bpmnElement="Flow_US_User">
+                <di:waypoint x="190" y="755" />
+                <di:waypoint x="190" y="800" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_0ahh8a3" bpmnElement="Flow_Non_US_User">
+                <di:waypoint x="215" y="730" />
+                <di:waypoint x="350" y="730" />
+                <di:waypoint x="350" y="800" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_1wlfnsc" bpmnElement="Flow_To_Reengage_Final_US">
+                <di:waypoint x="190" y="880" />
+                <di:waypoint x="190" y="920" />
+                <di:waypoint x="220" y="920" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_0ljoi9g" bpmnElement="Flow_To_Reengage_Final_NonUS">
+                <di:waypoint x="350" y="880" />
+                <di:waypoint x="350" y="920" />
+                <di:waypoint x="320" y="920" />
+            </bpmndi:BPMNEdge>
+            
+            <bpmndi:BPMNEdge id="Flow_0yvpwut" bpmnElement="Flow_To_End_Complete">
+                <di:waypoint x="270" y="1000" />
+                <di:waypoint x="270" y="1032" />
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</definitions>

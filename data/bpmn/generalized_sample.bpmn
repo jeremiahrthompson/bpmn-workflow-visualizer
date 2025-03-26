@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/bpmncustom" id="Definitions_1" targetNamespace="http://bpmnsample">
+    <process id="HR_Workflow" name="Generic HR Workflow">
+        <startEvent id="Start_Intent" name="Capture Intent: [Intent]">
+            <outgoing>Flow_To_VA</outgoing>
+        </startEvent>
+        <serviceTask id="Task_VA" name="VA Interaction: [Text]">
+            <incoming>Flow_To_VA</incoming>
+            <outgoing>Flow_To_Answer</outgoing>
+        </serviceTask>
+        <intermediateCatchEvent id="Event_Answer" name="Receive user answer" eventType="message">
+            <incoming>Flow_To_Answer</incoming>
+            <outgoing>Flow_To_Choice</outgoing>
+            <messageEventDefinition messageRef="msg_user_answer"/>
+        </intermediateCatchEvent>
+        <exclusiveGateway id="Gateway_Choice" name="User Choice: [Description]">
+            <incoming>Flow_To_Choice</incoming>
+            <outgoing>Flow_Yes</outgoing>
+            <outgoing>Flow_No</outgoing>
+        </exclusiveGateway>
+        <sequenceFlow id="Flow_No" sourceRef="Gateway_Choice" targetRef="Task_Reengage" conditionExpression="user_answer == 'no'"/>
+        <serviceTask id="Task_Reengage" name="Re-engage: [Text]">
+            <incoming>Flow_No</incoming>
+            <outgoing>Flow_To_End</outgoing>
+        </serviceTask>
+        <sequenceFlow id="Flow_Yes" sourceRef="Gateway_Choice" targetRef="Task_Interrupt" conditionExpression="user_answer == 'yes'"/>
+        <task id="Task_Interrupt" name="Interrupt: [Instructions]">
+            <incoming>Flow_Yes</incoming>
+            <outgoing>Flow_To_Integration</outgoing>
+        </task>
+        <callActivity id="Task_Integration" name="Integration: [Purpose]" calledElement="[SubProcess]">
+            <incoming>Flow_To_Integration</incoming>
+            <outgoing>Flow_To_End</outgoing>
+        </callActivity>
+        <endEvent id="End_1" name="End">
+            <incoming>Flow_To_End</incoming>
+        </endEvent>
+    </process>
+    <process id="SubProcess" name="Shared Sub-Process">
+        <!-- Shared logic, e.g., "Check Eligibility" -->
+    </process>
+</definitions>
